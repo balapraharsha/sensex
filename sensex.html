@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SENSEX — The phone becomes the diagnostic tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;
+  --bg-alt:#F1EFE7;
+  --surface:#FFFFFF;
+  --ink:#16160F;
+  --ink-soft:#54544A;
+  --ink-faint:#8B8B7E;
+  --line:#E1DFD3;
+  --line-strong:#CBC8B9;
+  --signal:#1F6E5C;
+  --signal-dim:#3E8873;
+  --signal-soft:#E4EFEA;
+  --anomaly:#B15E24;
+  --anomaly-soft:#F6E7D7;
+  --radius-s:3px;
+  --radius-m:6px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:76px;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-0.01em;}
+p{margin:0;}
+img,svg{max-width:100%;display:block;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+@media (max-width:640px){.wrap{padding:0 20px;}}
+section{position:relative;}
+
+/* ---------- NAV ---------- */
+header.topnav{
+  position:sticky;top:0;top:env(safe-area-inset-top,0px);z-index:100;
+  background:rgba(250,250,248,0.86);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:1180px;margin:0 auto;padding:0 28px;
+  height:64px;display:flex;align-items:center;justify-content:space-between;
+}
+@media (max-width:640px){.nav-inner{padding:0 20px;height:58px;}}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-0.01em;color:var(--ink);text-decoration:none;}
+.brand-mark{width:20px;height:20px;flex:none;}
+.nav-links{display:flex;gap:2px;list-style:none;margin:0;padding:0;}
+.nav-links a{
+  display:block;padding:8px 14px;border-radius:20px;
+  color:var(--ink-soft);text-decoration:none;font-size:13.5px;font-weight:500;
+  transition:background .15s ease, color .15s ease;
+}
+.nav-links a:hover,.nav-links a:focus-visible{background:var(--bg-alt);color:var(--ink);}
+.nav-links{display:none;}
+@media (min-width:860px){.nav-links{display:flex;}}
+.nav-toggle{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+  cursor:pointer;
+}
+@media (min-width:860px){.nav-toggle{display:none;}}
+.nav-toggle span{display:block;width:16px;height:1.5px;background:var(--ink);position:relative;}
+.nav-toggle span::before,.nav-toggle span::after{content:'';position:absolute;left:0;width:16px;height:1.5px;background:var(--ink);}
+.nav-toggle span::before{top:-5px;}
+.nav-toggle span::after{top:5px;}
+.mobile-menu{
+  display:none;flex-direction:column;background:var(--surface);border-bottom:1px solid var(--line);
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{padding:14px 20px;color:var(--ink-soft);text-decoration:none;font-size:14px;border-top:1px solid var(--line);font-weight:500;}
+@media (min-width:860px){.mobile-menu{display:none !important;}}
+
+/* ---------- HERO ---------- */
+.hero{padding:64px 0 40px;overflow:hidden;}
+@media (min-width:860px){.hero{padding:88px 0 60px;}}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.02em;
+  color:var(--signal);background:var(--signal-soft);
+  border:1px solid #cfe3da;padding:5px 10px;border-radius:20px;margin-bottom:22px;
+}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.hero h1{
+  font-size:40px;line-height:1.06;letter-spacing:-0.02em;max-width:15ch;
+}
+@media (min-width:640px){.hero h1{font-size:56px;}}
+@media (min-width:1000px){.hero h1{font-size:66px;}}
+.hero-sub{margin-top:22px;font-size:17px;line-height:1.55;color:var(--ink-soft);max-width:46ch;}
+@media (min-width:640px){.hero-sub{font-size:19px;}}
+.hero-cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:32px;}
+.btn-primary{
+  appearance:none;border:none;cursor:pointer;
+  background:var(--ink);color:#fff;
+  padding:14px 22px;border-radius:8px;font-size:14.5px;font-weight:600;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:transform .15s ease, background .15s ease;
+  text-decoration:none;
+}
+.btn-primary:hover{background:#000;transform:translateY(-1px);}
+.btn-primary svg{width:15px;height:15px;transition:transform .2s ease;}
+.btn-primary:hover svg{transform:translateX(3px);}
+.hero-hint{font-size:13px;color:var(--ink-faint);}
+
+.hero-stage{
+  margin-top:56px;border:1px solid var(--line);border-radius:14px;background:var(--surface);
+  padding:26px 20px 30px;position:relative;
+}
+@media (min-width:760px){.hero-stage{padding:40px 44px 44px;}}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:34px;align-items:center;}
+@media (min-width:900px){.hero-grid{grid-template-columns:1.1fr 1.3fr;gap:12px;}}
+.phone-wrap{display:flex;justify-content:center;}
+.phone{
+  width:150px;height:308px;border:2px solid var(--ink);border-radius:26px;position:relative;
+  background:linear-gradient(180deg,#1b1b16,#0e0e0a);
+  padding:9px;
+}
+.phone-screen{width:100%;height:100%;border-radius:18px;background:#0d1210;position:relative;overflow:hidden;}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:44px;height:5px;background:#000;border-radius:0 0 6px 6px;}
+.sensor-badges{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:14px;}
+.sbadge{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.03em;color:#cfe9dd;
+  border:1px solid #2b4f42;background:#122019;padding:5px 8px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;width:100%;justify-content:center;
+}
+.sbadge .led{width:5px;height:5px;border-radius:50%;background:var(--signal-dim);}
+.sbadge.live .led{background:#4fd8a8;animation:pulse 1.4s ease-in-out infinite;}
+.diagnosis-line{
+  font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:#7bbfa2;margin-top:6px;text-align:center;line-height:1.5;min-height:26px;
+}
+
+.signal-panel{display:flex;flex-direction:column;gap:16px;}
+.signal-row{
+  border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--bg);
+  display:flex;flex-direction:column;gap:8px;
+}
+.signal-row .srow-top{display:flex;align-items:center;justify-content:space-between;}
+.signal-row .srow-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.signal-row .srow-label .ic{width:16px;height:16px;color:var(--signal);flex:none;}
+.signal-row .srow-val{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);}
+.wave-track{height:30px;position:relative;}
+.wave-track svg{width:100%;height:100%;overflow:visible;}
+.wave-path{fill:none;stroke:var(--signal);stroke-width:1.6;stroke-linecap:round;}
+
+.verdict-card{
+  margin-top:4px;border:1px solid var(--anomaly);background:var(--anomaly-soft);border-radius:10px;
+  padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+}
+.verdict-card .ic{width:18px;height:18px;color:var(--anomaly);flex:none;margin-top:1px;}
+.verdict-card .vt{font-size:13.5px;font-weight:600;color:#7a3d12;}
+.verdict-card .vd{font-size:12.5px;color:#8a5024;margin-top:3px;line-height:1.45;}
+
+/* ---------- SECTION HEADERS ---------- */
+.section-pad{padding:80px 0;}
+@media (max-width:640px){.section-pad{padding:56px 0;}}
+.section-head{max-width:620px;margin-bottom:48px;}
+.section-kicker{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--signal);letter-spacing:.02em;margin-bottom:12px;display:block;}
+.section-head h2{font-size:28px;letter-spacing:-0.015em;}
+@media (min-width:640px){.section-head h2{font-size:34px;}}
+.section-head p{margin-top:14px;color:var(--ink-soft);font-size:15.5px;line-height:1.6;}
+.alt{background:var(--bg-alt);}
+.border-y{border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+
+/* ---------- STORY (scroll) ---------- */
+.story{display:flex;gap:0;}
+.story-rail{
+  position:relative;padding-left:30px;
+}
+.story-rail::before{
+  content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--line-strong);
+}
+.story-fill{
+  position:absolute;left:9px;top:6px;width:2px;background:var(--signal);height:0%;transition:height .25s linear;
+}
+.story-stage{
+  position:relative;padding:0 0 46px 0;opacity:.35;transition:opacity .35s ease;
+}
+.story-stage:last-child{padding-bottom:4px;}
+.story-stage.active{opacity:1;}
+.story-node{
+  position:absolute;left:-30px;top:2px;width:20px;height:20px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--line-strong);
+  display:flex;align-items:center;justify-content:center;transition:border-color .3s ease, background .3s ease;
+}
+.story-stage.active .story-node{border-color:var(--signal);background:var(--signal);}
+.story-node::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--line-strong);}
+.story-stage.active .story-node::after{background:#fff;}
+.story-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
+.story-stage h3{font-size:19px;margin-top:6px;letter-spacing:-0.01em;}
+@media (min-width:640px){.story-stage h3{font-size:21px;}}
+.story-stage p{margin-top:8px;color:var(--ink-soft);font-size:14.5px;max-width:52ch;line-height:1.6;}
+.story-tag{
+  display:inline-block;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  padding:3px 9px;border-radius:20px;border:1px solid var(--line-strong);color:var(--ink-faint);
+}
+.story-stage.active .story-tag{border-color:var(--signal);color:var(--signal);}
+
+/* ---------- ARCHITECTURE ---------- */
+.arch-shell{display:grid;grid-template-columns:1fr;gap:14px;}
+@media (min-width:940px){.arch-shell{grid-template-columns:1.05fr 1fr;gap:24px;align-items:start;}}
+.arch-diagram{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:22px 16px;}
+.arch-layer{
+  border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  background:var(--bg);transition:border-color .18s ease, background .18s ease, transform .18s ease;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.arch-layer:last-child{margin-bottom:0;}
+.arch-layer:hover{border-color:var(--line-strong);}
+.arch-layer.active{border-color:var(--signal);background:var(--signal-soft);}
+.arch-layer-left{display:flex;align-items:center;gap:12px;}
+.arch-ic{width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none;}
+.arch-layer.active .arch-ic{border-color:var(--signal);}
+.arch-ic svg{width:16px;height:16px;color:var(--ink-soft);}
+.arch-layer.active .arch-ic svg{color:var(--signal);}
+.arch-layer-title{font-size:14.5px;font-weight:600;}
+.arch-layer-sub{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+.arch-chev{width:14px;height:14px;color:var(--ink-faint);transition:transform .2s ease;flex:none;}
+.arch-layer.active .arch-chev{transform:rotate(90deg);color:var(--signal);}
+.arch-connector{height:16px;display:flex;align-items:center;justify-content:center;}
+.arch-connector svg{width:12px;height:12px;color:var(--line-strong);}
+
+.arch-detail{
+  border:1px solid var(--line);border-radius:14px;background:var(--bg);padding:22px 20px;
+  min-height:320px;
+}
+.arch-detail-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.arch-detail-head .arch-ic{width:34px;height:34px;}
+.arch-detail h4{font-size:16.5px;}
+.arch-detail-kv{display:grid;grid-template-columns:64px 1fr;gap:10px 14px;margin-top:14px;}
+.arch-detail-kv .k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--signal);padding-top:2px;letter-spacing:.02em;}
+.arch-detail-kv .v{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+.arch-why{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line-strong);font-size:13px;color:var(--ink-soft);line-height:1.6;}
+.arch-why b{color:var(--ink);}
+
+/* ---------- LIVE DEMO ---------- */
+.demo-shell{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:20px 16px 26px;}
+@media (min-width:760px){.demo-shell{padding:30px 30px 34px;}}
+.demo-top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.demo-scenario{font-size:13px;color:var(--ink-soft);}
+.demo-scenario b{color:var(--ink);}
+.run-btn{
+  appearance:none;border:1px solid var(--ink);cursor:pointer;background:var(--ink);color:#fff;
+  padding:11px 20px;border-radius:8px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;
+  transition:background .15s ease, opacity .15s ease;
+}
+.run-btn:hover{background:#000;}
+.run-btn:disabled{opacity:.55;cursor:default;}
+.run-btn svg{width:13px;height:13px;}
+
+.pipeline{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+@media (max-width:900px){.pipeline{grid-template-columns:repeat(4,1fr);}}
+@media (max-width:560px){.pipeline{grid-template-columns:repeat(2,1fr);}}
+.pnode{
+  border:1px solid var(--line);border-radius:10px;padding:13px 10px;text-align:center;background:var(--bg);
+  transition:border-color .25s ease, background .25s ease, transform .25s ease;
+}
+.pnode .pn-label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.03em;color:var(--ink-faint);}
+.pnode .pn-title{font-size:12.5px;font-weight:600;margin-top:6px;min-height:16px;}
+.pnode .pn-state{font-size:10.5px;color:var(--ink-faint);margin-top:4px;min-height:14px;}
+.pnode.active{border-color:var(--signal);background:var(--signal-soft);transform:translateY(-2px);}
+.pnode.done{border-color:var(--line-strong);}
+.pnode.flag{border-color:var(--anomaly);background:var(--anomaly-soft);}
+
+.demo-readout{
+  margin-top:22px;border-top:1px solid var(--line);padding-top:20px;
+  display:grid;grid-template-columns:1fr;gap:14px;
+}
+@media (min-width:760px){.demo-readout{grid-template-columns:1fr 1fr 1fr;}}
+.readout-card{border:1px solid var(--line);border-radius:10px;padding:14px 15px;background:var(--bg);}
+.readout-card .rc-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint);letter-spacing:.03em;}
+.readout-card .rc-val{font-size:19px;font-weight:700;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+.readout-card .rc-sub{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+.result-banner{
+  margin-top:16px;border:1px solid var(--line-strong);border-radius:10px;padding:16px 18px;background:var(--bg);
+  font-size:13.5px;color:var(--ink-faint);display:flex;align-items:center;gap:10px;
+  transition:border-color .3s ease, background .3s ease, color .3s ease;
+}
+.result-banner.ready{border-color:var(--anomaly);background:var(--anomaly-soft);color:#7a3d12;}
+.result-banner b{color:inherit;}
+.result-banner .rb-ic{width:16px;height:16px;flex:none;}
+
+/* ---------- DIFFERENTIATION ---------- */
+.diff-shell{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);}
+@media (min-width:760px){.diff-shell{grid-template-columns:1fr 1fr;}}
+.diff-col{padding:26px 22px 30px;}
+.diff-col.trad{border-bottom:1px solid var(--line);}
+@media (min-width:760px){.diff-col.trad{border-bottom:none;border-right:1px solid var(--line);}}
+.diff-col.sensex{background:var(--signal-soft);}
+.diff-col-head{display:flex;align-items:center;gap:9px;margin-bottom:18px;}
+.diff-col-head .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}
+.diff-col.sensex .dot{background:var(--signal);}
+.diff-col-head h4{font-size:14.5px;font-weight:700;}
+.diff-flow{display:flex;flex-direction:column;gap:0;}
+.diff-step{
+  display:flex;align-items:flex-start;gap:12px;padding:11px 0;
+  border-top:1px dashed var(--line);
+}
+.diff-step:first-child{border-top:none;padding-top:0;}
+.diff-step .ds-ic{width:20px;height:20px;flex:none;margin-top:1px;color:var(--ink-faint);}
+.diff-col.sensex .ds-ic{color:var(--signal);}
+.diff-step .ds-text{font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+.diff-step .ds-text b{color:var(--ink);font-weight:600;}
+.diff-step.penalty .ds-text{color:#8a5024;}
+.diff-meta{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);}
+.diff-col.sensex .diff-meta{border-top-color:#cfe3da;color:var(--signal);}
+
+/* ---------- IMPACT ---------- */
+.impact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+@media (min-width:760px){.impact-grid{grid-template-columns:repeat(4,1fr);}}
+.impact-cell{background:var(--surface);padding:26px 20px;}
+.impact-num{font-size:32px;font-weight:800;font-family:'IBM Plex Mono',monospace;letter-spacing:-0.02em;color:var(--signal);}
+@media (min-width:640px){.impact-num{font-size:38px;}}
+.impact-label{margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.4;}
+.impact-note{margin-top:6px;font-size:10.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+.impact-flag{margin-top:28px;font-size:12px;color:var(--ink-faint);display:flex;gap:8px;align-items:flex-start;}
+.impact-flag svg{width:14px;height:14px;flex:none;margin-top:2px;color:var(--ink-faint);}
+
+/* ---------- TECH ---------- */
+.tech-stack{display:flex;flex-direction:column;gap:10px;}
+.tech-row{
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden;
+}
+.tech-row-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;cursor:pointer;
+}
+.tech-row-left{display:flex;align-items:center;gap:12px;}
+.tech-badge{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--signal);background:var(--signal-soft);
+  border:1px solid #cfe3da;padding:3px 8px;border-radius:5px;flex:none;
+}
+.tech-row-title{font-size:14.5px;font-weight:600;}
+.tech-chev{width:14px;height:14px;color:var(--ink-faint);transition:transform .2s ease;flex:none;}
+.tech-row.open .tech-chev{transform:rotate(180deg);}
+.tech-row-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+.tech-row.open .tech-row-body{max-height:200px;}
+.tech-row-body-inner{padding:0 18px 16px;font-size:13px;color:var(--ink-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-top:2px;}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--line);padding:44px 0 calc(44px + env(safe-area-inset-bottom,0px));background:var(--bg-alt);}
+.foot-inner{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:center;}
+.foot-brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14.5px;}
+.foot-brand .brand-mark{width:16px;height:16px;}
+.foot-line{font-size:12.5px;color:var(--ink-faint);max-width:44ch;line-height:1.6;}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease, transform .5s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="nav-inner">
+    <a href="#overview" class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none"><rect x="7" y="2" width="10" height="20" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M10 6.5L11.4 9.5L13 5.5L14.4 9.5L15.6 7" stroke="#1F6E5C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      SENSEX
+    </a>
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#live-demo">Live Demo</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#impact">Impact</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu"><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#overview">Overview</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#live-demo">Live Demo</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#impact">Impact</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="overview">
+  <div class="wrap">
+    <span class="hero-eyebrow"><span class="dot"></span>ON-DEVICE MULTIMODAL DIAGNOSTICS</span>
+    <h1>Your phone already carries the sensors of a diagnostic lab.</h1>
+    <p class="hero-sub">SENSEX fuses the camera, microphone and motion sensors already in your pocket with local AI, so anyone can point a phone at a machine and get an evidence-backed answer &mdash; no cloud, no specialist, no waiting.</p>
+    <div class="hero-cta-row">
+      <a href="#how-it-works" class="btn-primary">Explore How It Works
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <span class="hero-hint">60-second interactive walkthrough below</span>
+    </div>
+
+    <div class="hero-stage reveal" id="heroStage">
+      <div class="hero-grid">
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="sensor-badges">
+                <div class="sbadge live" id="hb-cam"><span class="led"></span>CAMERA</div>
+                <div class="sbadge live" id="hb-mic"><span class="led"></span>MIC</div>
+                <div class="sbadge live" id="hb-imu"><span class="led"></span>IMU</div>
+                <div class="diagnosis-line" id="heroDiagnosisLine">fusing signals&hellip;</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="signal-panel">
+          <div class="signal-row">
+            <div class="srow-top">
+              <span class="srow-label"><svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M17 10l4-2.5v9L17 14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Visual signal</span>
+              <span class="srow-val">frame Δ analysis</span>
+            </div>
+            <div class="wave-track"><svg viewBox="0 0 300 30" preserveAspectRatio="none"><path class="wave-path" id="wave1" d="M0,15 L300,15"/></svg></div>
+          </div>
+          <div class="signal-row">
+            <div class="srow-top">
+              <span class="srow-label"><svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 11a6 6 0 0012 0M12 19v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Acoustic signal</span>
+              <span class="srow-val">spectral pattern</span>
+            </div>
+            <div class="wave-track"><svg viewBox="0 0 300 30" preserveAspectRatio="none"><path class="wave-path" id="wave2" d="M0,15 L300,15"/></svg></div>
+          </div>
+          <div class="signal-row">
+            <div class="srow-top">
+              <span class="srow-label"><svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Motion signal</span>
+              <span class="srow-val">vibration axis</span>
+            </div>
+            <div class="wave-track"><svg viewBox="0 0 300 30" preserveAspectRatio="none"><path class="wave-path" id="wave3" d="M0,15 L300,15"/></svg></div>
+          </div>
+          <div class="verdict-card">
+            <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.3 4.5L2.9 18a2 2 0 001.7 3h14.8a2 2 0 001.7-3L13.7 4.5a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <div>
+              <div class="vt">Bearing wear detected &mdash; 82% confidence</div>
+              <div class="vd">Vibration spike at 340&ndash;360 Hz correlates with an audible high-frequency whine and a faint visual wobble at the housing. Recommended: inspect the drive-side bearing within 5 days.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM -> SOLUTION STORY ============ -->
+<section class="section-pad border-y" id="how-it-works">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">HOW IT WORKS</span>
+      <h2>One continuous chain, from a strange noise to a fixed machine.</h2>
+      <p>Follow the signal as it moves from a real-world problem to a measurable outcome. Scroll to see each stage activate.</p>
+    </div>
+
+    <div class="story-rail">
+      <div class="story-fill" id="storyFill"></div>
+      <div id="storyStages">
+        <div class="story-stage" data-stage="0">
+          <span class="story-node"></span>
+          <span class="story-num">01</span>
+          <h3>Existing problem</h3>
+          <p>A machine, appliance, or vehicle starts behaving oddly &mdash; a new sound, a vibration, a visible flutter. Most people have no way to tell if it's minor or urgent.</p>
+          <span class="story-tag">no diagnostic access</span>
+        </div>
+        <div class="story-stage" data-stage="1">
+          <span class="story-node"></span>
+          <span class="story-num">02</span>
+          <h3>Critical gap</h3>
+          <p>Proper diagnostic equipment is expensive and specialist-only. Students, technicians and small businesses either wait, guess, or pay for a call-out just to be told "it's fine."</p>
+          <span class="story-tag">expertise bottleneck</span>
+        </div>
+        <div class="story-stage" data-stage="2">
+          <span class="story-node"></span>
+          <span class="story-num">03</span>
+          <h3>Our intervention</h3>
+          <p>SENSEX turns the phone already in their hand into the instrument. Camera, microphone and motion sensors are pointed at the machine for a short capture window.</p>
+          <span class="story-tag">phone as instrument</span>
+        </div>
+        <div class="story-stage" data-stage="3">
+          <span class="story-num">04</span>
+          <span class="story-node"></span>
+          <h3>Intelligence &amp; detection</h3>
+          <p>On-device AI fuses the three signal streams &mdash; visual motion, acoustic frequency, and vibration axis &mdash; and cross-checks them against known fault signatures, entirely offline.</p>
+          <span class="story-tag">multimodal fusion</span>
+        </div>
+        <div class="story-stage" data-stage="4">
+          <span class="story-node"></span>
+          <span class="story-num">05</span>
+          <h3>Decision</h3>
+          <p>The model doesn't just flag "abnormal" &mdash; it produces a specific, ranked likely cause with a confidence score and the evidence behind it.</p>
+          <span class="story-tag">evidence-backed</span>
+        </div>
+        <div class="story-stage" data-stage="5">
+          <span class="story-node"></span>
+          <span class="story-num">06</span>
+          <h3>Action</h3>
+          <p>SENSEX guides the user through the next concrete inspection step &mdash; what part to check, what to look or listen for, and how urgent it is.</p>
+          <span class="story-tag">guided next step</span>
+        </div>
+        <div class="story-stage" data-stage="6">
+          <span class="story-node"></span>
+          <span class="story-num">07</span>
+          <h3>Measurable impact</h3>
+          <p>A fault caught early, a call-out avoided, or a costly failure prevented &mdash; all from a device the user already owned.</p>
+          <span class="story-tag">earlier &amp; cheaper</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section class="section-pad alt" id="architecture">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">ARCHITECTURE</span>
+      <h2>Four layers, working end to end on the device.</h2>
+      <p>Select a layer to see exactly what goes in, what happens inside it, and what comes out.</p>
+    </div>
+
+    <div class="arch-shell">
+      <div class="arch-diagram" id="archDiagram">
+        <!-- layers injected with connectors via JS-free static markup -->
+        <div class="arch-layer active" data-layer="0" tabindex="0" role="button">
+          <div class="arch-layer-left">
+            <div class="arch-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div><div class="arch-layer-title">Sensor capture</div><div class="arch-layer-sub">Camera · Mic · IMU</div></div>
+          </div>
+          <svg class="arch-chev" viewBox="0 0 16 16" fill="none"><path d="M6 3l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="arch-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v14M6 12l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arch-layer" data-layer="1" tabindex="0" role="button">
+          <div class="arch-layer-left">
+            <div class="arch-ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="7" cy="7" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="7" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="17" r="2.4" stroke="currentColor" stroke-width="1.5"/><path d="M9 8.5L11 15M15 8.5L13 15M9.3 7h5.4" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div><div class="arch-layer-title">Signal fusion</div><div class="arch-layer-sub">Time-aligned multimodal stream</div></div>
+          </div>
+          <svg class="arch-chev" viewBox="0 0 16 16" fill="none"><path d="M6 3l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="arch-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v14M6 12l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arch-layer" data-layer="2" tabindex="0" role="button">
+          <div class="arch-layer-left">
+            <div class="arch-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.5L20 10l-4.8 3.6L16.5 20 12 16.7 7.5 20l1.3-6.4L4 10l5.6-1.5L12 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+            <div><div class="arch-layer-title">On-device AI reasoning</div><div class="arch-layer-sub">Local inference, no upload</div></div>
+          </div>
+          <svg class="arch-chev" viewBox="0 0 16 16" fill="none"><path d="M6 3l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="arch-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v14M6 12l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arch-layer" data-layer="3" tabindex="0" role="button">
+          <div class="arch-layer-left">
+            <div class="arch-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <div><div class="arch-layer-title">Diagnosis output</div><div class="arch-layer-sub">Cause · confidence · next step</div></div>
+          </div>
+          <svg class="arch-chev" viewBox="0 0 16 16" fill="none"><path d="M6 3l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div class="arch-detail" id="archDetail">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LIVE DEMO ============ -->
+<section class="section-pad" id="live-demo">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">SEE IT IN ACTION</span>
+      <h2>Run a simulated diagnosis, start to finish.</h2>
+      <p>This reproduces our controlled hackathon demo: a motor housing with an induced bearing fault, captured on a phone.</p>
+    </div>
+
+    <div class="demo-shell">
+      <div class="demo-top">
+        <div class="demo-scenario">Scenario: <b>small electric motor</b> &middot; 8-second capture &middot; camera + mic + IMU</div>
+        <button class="run-btn" id="runBtn">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M4 2.5l10 5.5-10 5.5v-11z" fill="currentColor"/></svg>
+          Run simulation
+        </button>
+      </div>
+
+      <div class="pipeline" id="pipeline">
+        <div class="pnode" data-i="0"><div class="pn-label">01</div><div class="pn-title">Input</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="1"><div class="pn-label">02</div><div class="pn-title">Detection</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="2"><div class="pn-label">03</div><div class="pn-title">Analysis</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="3"><div class="pn-label">04</div><div class="pn-title">AI / Intelligence</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="4"><div class="pn-label">05</div><div class="pn-title">Decision</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="5"><div class="pn-label">06</div><div class="pn-title">Action</div><div class="pn-state">idle</div></div>
+        <div class="pnode" data-i="6"><div class="pn-label">07</div><div class="pn-title">Result</div><div class="pn-state">idle</div></div>
+      </div>
+
+      <div class="demo-readout">
+        <div class="readout-card"><div class="rc-label">ACOUSTIC ANOMALY</div><div class="rc-val" id="rMetric1">&mdash;</div><div class="rc-sub">vs. baseline spectrum</div></div>
+        <div class="readout-card"><div class="rc-label">VIBRATION DEVIATION</div><div class="rc-val" id="rMetric2">&mdash;</div><div class="rc-sub">340&ndash;360 Hz band</div></div>
+        <div class="readout-card"><div class="rc-label">CONFIDENCE</div><div class="rc-val" id="rMetric3">&mdash;</div><div class="rc-sub">fused across 3 signals</div></div>
+      </div>
+
+      <div class="result-banner" id="resultBanner">
+        <svg class="rb-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Waiting to run &mdash; press "Run simulation" to move data through the full pipeline.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIFFERENTIATION ============ -->
+<section class="section-pad alt border-y">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">WHY THIS IS DIFFERENT</span>
+      <h2>Not a chatbot with a camera. A closed loop, on the device.</h2>
+      <p>The difference isn't a feature &mdash; it's where the reasoning happens and how many signals it uses.</p>
+    </div>
+
+    <div class="diff-shell">
+      <div class="diff-col trad">
+        <div class="diff-col-head"><span class="dot"></span><h4>TRADITIONAL APPROACH</h4></div>
+        <div class="diff-flow">
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">User records <b>one</b> signal &mdash; usually just a photo or video clip.</div></div>
+          <div class="diff-step penalty"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M14 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ds-text">File is <b>uploaded to the cloud</b> and queued for processing.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><div class="ds-text">General-purpose model gives a <b>vague, generic</b> visual description.</div></div>
+          <div class="diff-step penalty"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">No confidence score, no cause &mdash; user is left to <b>interpret it themselves</b>.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">Requires network connectivity and raises <b>data privacy</b> questions.</div></div>
+        </div>
+        <div class="diff-meta">LATENCY: NETWORK-DEPENDENT &middot; SIGNALS: 1</div>
+      </div>
+      <div class="diff-col sensex">
+        <div class="diff-col-head"><span class="dot"></span><h4>SENSEX APPROACH</h4></div>
+        <div class="diff-flow">
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="19" cy="6" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="6" r="2.4" stroke="currentColor" stroke-width="1.5"/><path d="M12 9.6V12M14 10.5l3.5-3M10 10.5L6.5 7.5" stroke="currentColor" stroke-width="1.3"/></svg><div class="ds-text">Captures <b>camera + mic + motion</b> together, time-aligned.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><rect x="7" y="2" width="10" height="20" rx="2.5" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">Everything is analysed <b>locally, on-device</b> &mdash; no upload, no wait.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.5L20 10l-4.8 3.6L16.5 20 12 16.7 7.5 20l1.3-6.4L4 10l5.6-1.5L12 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><div class="ds-text">Signals are <b>cross-checked against each other</b>, not read in isolation.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">Outputs a <b>specific cause, confidence score, and next inspection step</b>.</div></div>
+          <div class="diff-step"><svg class="ds-ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="4" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="6" width="4" height="13" stroke="currentColor" stroke-width="1.5"/><rect x="17" y="3" width="4" height="16" stroke="currentColor" stroke-width="1.5"/></svg><div class="ds-text">Works fully <b>offline</b>, keeping raw sensor data private to the device.</div></div>
+        </div>
+        <div class="diff-meta">LATENCY: ON-DEVICE, SECONDS &middot; SIGNALS: 3, FUSED</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMPACT ============ -->
+<section class="section-pad" id="impact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">MEASURABLE IMPACT</span>
+      <h2>What multimodal, on-device diagnosis is designed to change.</h2>
+      <p>Figures below reflect our controlled prototype scenario, labelled where simulated.</p>
+    </div>
+
+    <div class="impact-grid" id="impactGrid">
+      <div class="impact-cell"><div class="impact-num" data-target="3" data-suffix="×">0×</div><div class="impact-label">more signal sources than a single-camera check</div><div class="impact-note">MEASURED · PROTOTYPE</div></div>
+      <div class="impact-cell"><div class="impact-num" data-target="0" data-suffix="">0</div><div class="impact-label">bytes of raw sensor data leave the device</div><div class="impact-note">BY DESIGN</div></div>
+      <div class="impact-cell"><div class="impact-num" data-target="82" data-suffix="%">0%</div><div class="impact-label">detection confidence on our demo fault case</div><div class="impact-note">SIMULATED · DEMO RUN</div></div>
+      <div class="impact-cell"><div class="impact-num" data-target="8" data-suffix="s">0s</div><div class="impact-label">from capture start to a ranked diagnosis</div><div class="impact-note">SIMULATED · DEMO RUN</div></div>
+    </div>
+    <div class="impact-flag">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Figures marked "simulated" come from our controlled demo scenario rather than a large real-world deployment, and are shown transparently as such.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECHNICAL ============ -->
+<section class="section-pad alt border-y">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-kicker">TECHNICAL CREDIBILITY</span>
+      <h2>What's actually running underneath.</h2>
+      <p>A compact, honest look at the stack &mdash; expand any layer for detail.</p>
+    </div>
+
+    <div class="tech-stack" id="techStack">
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">01</span><span class="tech-row-title">Frontend / capture app</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">Native Android capture layer coordinating camera, microphone and IMU streams with a shared clock, plus the guided-capture and results UI.</div></div></div>
+
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">02</span><span class="tech-row-title">On-device AI / ML</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">Lightweight on-device models for visual motion analysis, acoustic spectral classification and vibration pattern matching, combined in a fusion layer that produces the ranked diagnosis.</div></div></div>
+
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">03</span><span class="tech-row-title">Local data &amp; storage</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">Fault signatures and past scan history are stored locally on-device, so diagnoses remain available without connectivity.</div></div></div>
+
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">04</span><span class="tech-row-title">Backend &amp; sync (optional)</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">A minimal backend exists only for optional fault-signature library updates and multi-device history sync &mdash; never required for a diagnosis to run.</div></div></div>
+
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">05</span><span class="tech-row-title">Security &amp; privacy</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">Raw camera, audio and motion data never leave the device by default &mdash; only the final diagnosis is ever eligible for optional sync.</div></div></div>
+
+      <div class="tech-row"><div class="tech-row-head"><div class="tech-row-left"><span class="tech-badge">06</span><span class="tech-row-title">Integration &amp; APIs</span></div><svg class="tech-chev" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tech-row-body"><div class="tech-row-body-inner">Designed with a clean interface boundary so the fusion engine can later plug into maintenance, education, or fleet-management tools.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none"><rect x="7" y="2" width="10" height="20" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M10 6.5L11.4 9.5L13 5.5L14.4 9.5L15.6 7" stroke="#1F6E5C" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      SENSEX
+    </div>
+    <p class="foot-line">On-device multimodal diagnostics for machines and equipment. Built for the iQOO Hackathon prototype.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Mobile nav
+  var navToggle = document.getElementById('navToggle');
+  var mobileMenu = document.getElementById('mobileMenu');
+  navToggle.addEventListener('click', function(){
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ mobileMenu.classList.remove('open'); });
+  });
+
+  // Reveal on scroll (hero stage + generic reveal els)
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); } });
+    }, {threshold:.2});
+    revealEls.forEach(function(el){ ro.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // Hero animated waveforms
+  function buildWave(seed, amp){
+    var pts = [];
+    for(var x=0;x<=300;x+=6){
+      var y = 15 + Math.sin((x/300)*Math.PI*2*seed + seed) * amp * (0.4+Math.abs(Math.sin(x/40+seed)));
+      pts.push(x.toFixed(1)+','+y.toFixed(1));
+    }
+    return 'M'+pts.join(' L');
+  }
+  var waveEls = [document.getElementById('wave1'), document.getElementById('wave2'), document.getElementById('wave3')];
+  var t = 0;
+  function animateWaves(){
+    t += 0.06;
+    if(waveEls[0]) waveEls[0].setAttribute('d', buildWave(1.3+Math.sin(t*.3)*.2, 5));
+    if(waveEls[1]) waveEls[1].setAttribute('d', buildWave(2.1+Math.sin(t*.4)*.3, 7));
+    if(waveEls[2]) waveEls[2].setAttribute('d', buildWave(1.7+Math.sin(t*.25)*.25, 6));
+    requestAnimationFrame(animateWaves);
+  }
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduceMotion){ requestAnimationFrame(animateWaves); }
+  else { waveEls.forEach(function(w){ if(w) w.setAttribute('d', buildWave(1.6,5)); }); }
+
+  // Hero diagnosis line typing loop
+  var heroLines = [
+    'fusing camera · mic · IMU streams…',
+    'cross-checking against fault library…',
+    'bearing wear detected — 82% confidence'
+  ];
+  var hl = document.getElementById('heroDiagnosisLine');
+  var hIdx = 0;
+  function cycleHero(){
+    if(!hl) return;
+    hl.style.opacity = 0;
+    setTimeout(function(){
+      hIdx = (hIdx+1) % heroLines.length;
+      hl.textContent = heroLines[hIdx];
+      hl.style.opacity = 1;
+    }, 300);
+  }
+  hl && (hl.style.transition = 'opacity .3s ease');
+  setInterval(cycleHero, 2600);
+
+  // ---------- STORY SCROLL ----------
+  var stages = document.querySelectorAll('.story-stage');
+  var fill = document.getElementById('storyFill');
+  var rail = document.querySelector('.story-rail');
+  function updateStory(){
+    var railRect = rail.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var activeIdx = -1;
+    stages.forEach(function(s, i){
+      var r = s.getBoundingClientRect();
+      var mid = r.top + r.height*0.35;
+      if(mid < vh*0.65){ activeIdx = i; }
+    });
+    stages.forEach(function(s,i){
+      s.classList.toggle('active', i <= activeIdx);
+    });
+    if(activeIdx >= 0){
+      var lastActive = stages[activeIdx];
+      var railTop = railRect.top;
+      var offset = lastActive.getBoundingClientRect().top - railTop + 12;
+      var pct = Math.max(0, Math.min(100, (offset / rail.offsetHeight) * 100));
+      fill.style.height = pct + '%';
+    } else {
+      fill.style.height = '0%';
+    }
+  }
+  window.addEventListener('scroll', updateStory, {passive:true});
+  window.addEventListener('resize', updateStory);
+  updateStory();
+
+  // ---------- ARCHITECTURE ----------
+  var archData = [
+    {
+      title:'Sensor capture', sub:'Camera · Mic · IMU',
+      input:'8–10 second guided capture: rear camera video, ambient microphone audio, and accelerometer/gyroscope readings, all timestamped on a shared clock.',
+      process:'Frames, audio samples and motion samples are buffered locally and light noise-filtering is applied (auto-exposure lock, mic gain normalisation, gravity-axis correction).',
+      output:'Three clean, time-aligned raw signal streams ready for fusion.',
+      why:'<b>Why it matters:</b> most tools treat the phone as "just a camera." Capturing all three streams together, on the same clock, is what makes real fusion possible in the next layer.'
+    },
+    {
+      title:'Signal fusion', sub:'Time-aligned multimodal stream',
+      input:'The three raw streams from sensor capture.',
+      process:'Each stream is converted into a comparable feature representation — visual motion vectors, an acoustic frequency spectrum, and a vibration-frequency profile — then aligned on the shared timeline.',
+      output:'One unified multimodal feature stream, where a spike in one signal can be checked against the others at the same instant.',
+      why:'<b>Why it matters:</b> a single odd sound could be nothing. A sound that lines up with a vibration spike and a visual wobble at the same moment is real evidence.'
+    },
+    {
+      title:'On-device AI reasoning', sub:'Local inference, no upload',
+      input:'The unified multimodal feature stream.',
+      process:'A lightweight on-device model compares the fused pattern against a library of known fault signatures, entirely on the phone\u2019s own hardware — nothing is sent to a server.',
+      output:'A ranked list of likely causes, each with a confidence score and the specific evidence that supports it.',
+      why:'<b>Why it matters:</b> on-device inference means the diagnosis works without signal, without a data plan, and without raw footage of someone\u2019s home or workplace ever leaving their hand.'
+    },
+    {
+      title:'Diagnosis output', sub:'Cause · confidence · next step',
+      input:'The ranked causes and confidence scores from the reasoning layer.',
+      process:'The top result is translated from a model score into plain language: what was likely detected, how confident the system is, and why.',
+      output:'A clear on-screen result plus one concrete next inspection step — e.g. "check the drive-side bearing within 5 days."',
+      why:'<b>Why it matters:</b> a confidence number means nothing to most users. Turning it into one specific action is what makes SENSEX usable by someone with no technical background.'
+    }
+  ];
+  var archLayers = document.querySelectorAll('.arch-layer');
+  var archDetail = document.getElementById('archDetail');
+  function iconFor(i){
+    return document.querySelectorAll('.arch-layer .arch-ic')[i].innerHTML;
+  }
+  function renderArch(i){
+    var d = archData[i];
+    archDetail.innerHTML =
+      '<div class="arch-detail-head"><div class="arch-ic">'+iconFor(i)+'</div><h4>'+d.title+'</h4></div>'+
+      '<div class="arch-detail-kv">'+
+        '<div class="k">INPUT</div><div class="v">'+d.input+'</div>'+
+        '<div class="k">PROCESS</div><div class="v">'+d.process+'</div>'+
+        '<div class="k">OUTPUT</div><div class="v">'+d.output+'</div>'+
+      '</div>'+
+      '<div class="arch-why">'+d.why+'</div>';
+  }
+  archLayers.forEach(function(layer){
+    function activate(){
+      archLayers.forEach(function(l){ l.classList.remove('active'); });
+      layer.classList.add('active');
+      renderArch(parseInt(layer.getAttribute('data-layer'),10));
+    }
+    layer.addEventListener('click', activate);
+    layer.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activate(); } });
+  });
+  renderArch(0);
+
+  // ---------- LIVE DEMO ----------
+  var runBtn = document.getElementById('runBtn');
+  var pnodes = document.querySelectorAll('.pnode');
+  var resultBanner = document.getElementById('resultBanner');
+  var rMetric1 = document.getElementById('rMetric1');
+  var rMetric2 = document.getElementById('rMetric2');
+  var rMetric3 = document.getElementById('rMetric3');
+  var stepData = [
+    {title:'Motor capture', state:'8.2s clip received'},
+    {title:'Anomaly flagged', state:'variance above baseline'},
+    {title:'Feature extraction', state:'spectrum + vibration axis'},
+    {title:'Model inference', state:'matching fault library'},
+    {title:'Bearing wear', state:'confidence 82%'},
+    {title:'Inspect bearing', state:'guidance generated'},
+    {title:'Diagnosis ready', state:'shown to user'}
+  ];
+  var running = false;
+  function resetPipeline(){
+    pnodes.forEach(function(n,i){
+      n.classList.remove('active','done','flag');
+      n.querySelector('.pn-title').textContent = ['Input','Detection','Analysis','AI / Intelligence','Decision','Action','Result'][i];
+      n.querySelector('.pn-state').textContent = 'idle';
+    });
+    rMetric1.textContent='—'; rMetric2.textContent='—'; rMetric3.textContent='—';
+    resultBanner.classList.remove('ready');
+    resultBanner.innerHTML = '<svg class="rb-ic" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Waiting to run — press "Run simulation" to move data through the full pipeline.</span>';
+  }
+  function runSimulation(){
+    if(running) return;
+    running = true;
+    runBtn.disabled = true;
+    resetPipeline();
+    var i = 0;
+    function step(){
+      if(i>0){ pnodes[i-1].classList.remove('active'); pnodes[i-1].classList.add('done'); }
+      if(i >= pnodes.length){
+        running = false;
+        runBtn.disabled = false;
+        pnodes[4].classList.add('flag');
+        rMetric1.textContent = '+63%';
+        rMetric2.textContent = '340–360 Hz';
+        rMetric3.textContent = '82%';
+        resultBanner.classList.add('ready');
+        resultBanner.innerHTML = '<svg class="rb-ic" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.3 4.5L2.9 18a2 2 0 001.7 3h14.8a2 2 0 001.7-3L13.7 4.5a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span><b>Bearing wear detected, 82% confidence.</b> Recommended: inspect the drive-side bearing within 5 days.</span>';
+        return;
+      }
+      var n = pnodes[i];
+      n.classList.add('active');
+      n.querySelector('.pn-title').textContent = stepData[i].title;
+      n.querySelector('.pn-state').textContent = stepData[i].state;
+      i++;
+      setTimeout(step, 620);
+    }
+    step();
+  }
+  runBtn.addEventListener('click', runSimulation);
+
+  // ---------- TECH ACCORDION ----------
+  document.querySelectorAll('.tech-row-head').forEach(function(head){
+    head.addEventListener('click', function(){
+      var row = head.closest('.tech-row');
+      var wasOpen = row.classList.contains('open');
+      document.querySelectorAll('.tech-row.open').forEach(function(r){ r.classList.remove('open'); });
+      if(!wasOpen){ row.classList.add('open'); }
+    });
+  });
+
+  // ---------- IMPACT COUNTERS ----------
+  var counters = document.querySelectorAll('.impact-num');
+  var countersAnimated = false;
+  function animateCounters(){
+    if(countersAnimated) return;
+    var grid = document.getElementById('impactGrid');
+    var r = grid.getBoundingClientRect();
+    if(r.top > window.innerHeight*0.85) return;
+    countersAnimated = true;
+    counters.forEach(function(el){
+      var target = parseFloat(el.getAttribute('data-target'));
+      var suffix = el.getAttribute('data-suffix') || '';
+      var dur = 900, startT = null;
+      function frame(ts){
+        if(!startT) startT = ts;
+        var p = Math.min(1, (ts-startT)/dur);
+        var val = Math.round(target * (1 - Math.pow(1-p,3)));
+        el.textContent = val + suffix;
+        if(p<1) requestAnimationFrame(frame);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  window.addEventListener('scroll', animateCounters, {passive:true});
+  animateCounters();
+})();
+</script>
+</body>
+</html>

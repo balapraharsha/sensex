@@ -1,0 +1,15 @@
+{
+  "name": "SENSEX — Physical Diagnostics",
+  "short_name": "SENSEX",
+  "description": "On-device physical diagnostics: camera, mic and motion fused into an evidence-backed diagnosis.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F1E6",
+  "theme_color": "#141210",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
